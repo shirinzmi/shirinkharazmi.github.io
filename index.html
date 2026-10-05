@@ -11,16 +11,59 @@
 <meta property="og:description" content="Airflow pipelines, a trading data warehouse and the Power BI models on top of it.">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230b1220'/%3E%3Crect x='7' y='17' width='4' height='8' fill='%234fd1c5'/%3E%3Crect x='14' y='11' width='4' height='14' fill='%23f2b33d'/%3E%3Crect x='21' y='6' width='4' height='19' fill='%234fd1c5'/%3E%3C/svg%3E">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Vazirmatn:wght@400;500;700;900&display=swap">
+<link rel="preload" href="assets/fonts/bricolage-grotesque-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/ibm-plex-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
 <style>
+/* fonts: self-hosted variable woff2, latin (+ arabic subset for Vazirmatn) */
+@font-face {
+  font-family: 'Bricolage Grotesque';
+  font-style: normal;
+  font-weight: 500 800;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(assets/fonts/bricolage-grotesque-latin.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 400 600;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(assets/fonts/ibm-plex-sans-latin.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url(assets/fonts/jetbrains-mono-latin.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+  src: url(assets/fonts/vazirmatn-arabic.woff2) format('woff2');
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0897-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC, U+102E0-102FB, U+10E60-10E7E, U+10EC2-10EC4, U+10EFC-10EFF, U+1EE00-1EE03, U+1EE05-1EE1F, U+1EE21-1EE22, U+1EE24, U+1EE27, U+1EE29-1EE32, U+1EE34-1EE37, U+1EE39, U+1EE3B, U+1EE42, U+1EE47, U+1EE49, U+1EE4B, U+1EE4D-1EE4F, U+1EE51-1EE52, U+1EE54, U+1EE57, U+1EE59, U+1EE5B, U+1EE5D, U+1EE5F, U+1EE61-1EE62, U+1EE64, U+1EE67-1EE6A, U+1EE6C-1EE72, U+1EE74-1EE77, U+1EE79-1EE7C, U+1EE7E, U+1EE80-1EE89, U+1EE8B-1EE9B, U+1EEA1-1EEA3, U+1EEA5-1EEA9, U+1EEAB-1EEBB, U+1EEF0-1EEF1;
+}
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+  src: url(assets/fonts/vazirmatn-latin.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 /* Layout: one narrow reading column; hero is a live "report canvas" — name as data points over a faint wall of refreshing dashboards.
    Skins: auto (blueprint light / terminal dark), plus explicit terminal, blueprint, report, heatmap.
    Languages: English (LTR) and Persian (RTL, Vazirmatn); layout uses logical properties so it mirrors. */
 :root{
   --bg:#eef3f8; --surface:#ffffff; --fg:#0f2742; --muted:#55708f; --line:#c9d6e4;
-  --accent:#1f5fbf; --accent2:#d9480f; --grid:rgba(31,95,191,.09);
+  --accent:#1f5fbf; --accent2:#d9480f; --grid:rgba(31,95,191,.035);
   --display:"Bricolage Grotesque", Vazirmatn, "Segoe UI", system-ui, sans-serif;
   --body:"IBM Plex Sans", Vazirmatn, "Segoe UI", system-ui, sans-serif;
   --mono:"JetBrains Mono", Vazirmatn, Consolas, ui-monospace, monospace;
@@ -36,29 +79,29 @@
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --bg:#0b1220; --surface:#111a2c; --fg:#d9e2ee; --muted:#8597b0; --line:#22314a;
-    --accent:#f2b33d; --accent2:#4fd1c5; --grid:rgba(79,209,197,.07); color-scheme:dark;
+    --accent:#f2b33d; --accent2:#4fd1c5; --grid:rgba(79,209,197,.025); color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
   --bg:#0b1220; --surface:#111a2c; --fg:#d9e2ee; --muted:#8597b0; --line:#22314a;
-  --accent:#f2b33d; --accent2:#4fd1c5; --grid:rgba(79,209,197,.07); color-scheme:dark;
+  --accent:#f2b33d; --accent2:#4fd1c5; --grid:rgba(79,209,197,.025); color-scheme:dark;
 }
 /* explicit skins win over light/dark (higher specificity) */
 :root[data-skin="terminal"][data-skin]{
   --bg:#0b1220; --surface:#111a2c; --fg:#d9e2ee; --muted:#8597b0; --line:#22314a;
-  --accent:#f2b33d; --accent2:#4fd1c5; --grid:rgba(79,209,197,.07); color-scheme:dark;
+  --accent:#f2b33d; --accent2:#4fd1c5; --grid:rgba(79,209,197,.025); color-scheme:dark;
 }
 :root[data-skin="blueprint"][data-skin]{
   --bg:#eef3f8; --surface:#ffffff; --fg:#0f2742; --muted:#55708f; --line:#c9d6e4;
-  --accent:#1f5fbf; --accent2:#d9480f; --grid:rgba(31,95,191,.09); color-scheme:light;
+  --accent:#1f5fbf; --accent2:#d9480f; --grid:rgba(31,95,191,.035); color-scheme:light;
 }
 :root[data-skin="report"][data-skin]{
   --bg:#f6f6f4; --surface:#ffffff; --fg:#252423; --muted:#6b6966; --line:#e1dfdd;
-  --accent:#b8860b; --accent2:#118dff; --grid:rgba(37,36,35,.06); color-scheme:light;
+  --accent:#b8860b; --accent2:#118dff; --grid:rgba(37,36,35,.025); color-scheme:light;
 }
 :root[data-skin="heatmap"][data-skin]{
   --bg:#160f1f; --surface:#211830; --fg:#efe6f5; --muted:#a493b5; --line:#36284a;
-  --accent:#ff7a59; --accent2:#c86bfa; --grid:rgba(200,107,250,.08); color-scheme:dark;
+  --accent:#ff7a59; --accent2:#c86bfa; --grid:rgba(200,107,250,.03); color-scheme:dark;
 }
 
 /* language visibility */
@@ -66,10 +109,20 @@
 
 *{box-sizing:border-box}
 [hidden]{display:none!important}
+#field{position:fixed; inset:0; width:100%; height:100%; z-index:-1; pointer-events:none}
+html{scroll-padding-top:64px}
+@media (min-width:900px) and (pointer:fine){
+  html{scroll-snap-type:y mandatory}
+  .hero, section{min-height:calc(100svh - 64px); display:flex; flex-direction:column; justify-content:center}
+}
+@media not ((min-width:900px) and (pointer:fine)){ html{scroll-snap-type:y proximity} }
+.hero, section{scroll-snap-align:start}
+section.pre{opacity:0; transform:translateY(28px)}
+section.in{opacity:1; transform:none; transition:opacity .7s ease, transform .7s cubic-bezier(.2,.7,.2,1)}
 html{scroll-behavior:smooth}
 body{background:var(--bg); color:var(--fg); font:16px/1.65 var(--body); padding-inline:20px; padding-block:0 64px;
   background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
-  background-size:32px 32px; transition:background-color .3s,color .3s}
+  background-size:32px 32px; background-attachment:fixed; transition:background-color .3s,color .3s}
 :root[lang="fa"] body{line-height:1.85}
 a{color:var(--accent)}
 :focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:3px}
@@ -105,7 +158,7 @@ nav .wrap{display:flex; align-items:center; gap:16px; flex-wrap:wrap; justify-co
 .hero > *:not(#bg){position:relative}
 .eyebrow{font:500 12px var(--mono); color:var(--accent2); text-transform:uppercase; letter-spacing:.14em}
 :root[lang="fa"] .eyebrow{font:500 14px var(--body); letter-spacing:0}
-.namebox{position:relative; display:inline-block; max-width:100%}
+.namebox{position:relative; display:inline-block; max-width:100%; align-self:flex-start}
 h1{font:800 clamp(56px,12vw,140px)/0.92 var(--display); letter-spacing:var(--h1track); margin:12px 0 18px}
 :root[lang="fa"] h1{font-weight:900; line-height:1.15}
 .particles-on h1{color:transparent}
@@ -293,6 +346,7 @@ footer{margin-top:40px; font:12px var(--mono); color:var(--muted)}
 </style>
 </head>
 <body>
+<canvas id="field" aria-hidden="true"></canvas>
 
 <nav>
   <div class="wrap">
@@ -753,6 +807,83 @@ footer{margin-top:40px; font:12px var(--mono); color:var(--muted)}
 
   const rnd = (a,b) => a + Math.random()*(b-a), lerp = (a,b,k) => a + (b-a)*k;
   const rrect = (c,x,y,w,h,r) => { c.beginPath(); c.roundRect ? c.roundRect(x,y,w,h,r) : c.rect(x,y,w,h); };
+
+  /* ---------- page background: data packets travelling the grid ---------- */
+  const fieldCv = document.getElementById('field'), fx = fieldCv.getContext('2d'), G = 32;
+  const rgba = (hex, a) => { const n = parseInt(hex.replace('#','').slice(0,6), 16); return `rgba(${n >> 16 & 255},${n >> 8 & 255},${n & 255},${a})`; };
+  let FW = 0, FH = 0, packets = [], glows = [], nodes = [], scrollV = 0, lastY = scrollY, mx = -999, my = -999;
+  function packet(p = {}){
+    const h = Math.random() < .5, dir = Math.random() < .5 ? 1 : -1, len = rnd(50,150), fresh = p.x === undefined;
+    const along = fresh ? rnd(0, h ? FW : FH) : (dir > 0 ? -len : (h ? FW : FH) + len);
+    const lane = Math.round(rnd(0, h ? FH : FW)/G)*G + .5;
+    return Object.assign(p, {h, dir, len, v: rnd(.5,1.4), c: Math.random() < .55 ? 'accent2' : 'accent', x: h ? along : lane, y: h ? lane : along});
+  }
+  function sizeField(){
+    const d = Math.min(devicePixelRatio || 1, 2);
+    FW = innerWidth; FH = innerHeight; fieldCv.width = FW*d; fieldCv.height = FH*d; fx.setTransform(d,0,0,d,0,0);
+    packets = Array.from({length: Math.max(10, Math.min(36, Math.round(FW*FH/40000)))}, () => packet());
+    glows = [0,1,2].map(i => ({x: rnd(0,FW), y: rnd(0,FH), r: rnd(260,460), vx: rnd(-.12,.12), vy: rnd(-.1,.1), c: i === 1 ? 'accent' : 'accent2'}));
+  }
+  function stepField(dt){
+    scrollV *= .92;
+    const boost = 1 + Math.min(8, Math.abs(scrollV)*.12), k = dt*.06;
+    for (const p of packets){
+      if (p.h) p.x += p.v*boost*p.dir*k; else p.y += p.v*boost*p.dir*k;
+      const pos = p.h ? p.x : p.y, max = (p.h ? FW : FH) + p.len + 10;
+      if (pos < -p.len - 10 || pos > max){ const n = packet({x: 0}); Object.assign(p, n); }
+    }
+    for (const g of glows){ g.x += g.vx*k*4; g.y += g.vy*k*4; if (g.x < -g.r || g.x > FW + g.r) g.vx *= -1; if (g.y < -g.r || g.y > FH + g.r) g.vy *= -1; }
+    if (Math.random() < .03*k) nodes.push({x: Math.round(rnd(0,FW)/G)*G + .5, y: Math.round(rnd(0,FH)/G)*G + .5, t: 0, c: Math.random() < .5 ? 'accent' : 'accent2'});
+    nodes = nodes.filter(n => (n.t += dt/1600) < 1);
+  }
+  function drawField(){
+    if (!FW) return;
+    fx.clearRect(0,0,FW,FH);
+    for (const g of glows){
+      const grd = fx.createRadialGradient(g.x, g.y, 0, g.x, g.y, g.r);
+      grd.addColorStop(0, rgba(C[g.c], .07)); grd.addColorStop(1, rgba(C[g.c], 0));
+      fx.fillStyle = grd; fx.fillRect(g.x - g.r, g.y - g.r, g.r*2, g.r*2);
+    }
+    if (mx > -999){  // soft spotlight under the pointer
+      const grd = fx.createRadialGradient(mx, my, 0, mx, my, 180);
+      grd.addColorStop(0, rgba(C.accent, .08)); grd.addColorStop(1, rgba(C.accent, 0));
+      fx.fillStyle = grd; fx.fillRect(mx - 180, my - 180, 360, 360);
+    }
+    for (const n of nodes){
+      const a = Math.sin(n.t*Math.PI);
+      fx.strokeStyle = rgba(C[n.c], .5*a); fx.lineWidth = 1;
+      fx.strokeRect(n.x - 3 - n.t*5, n.y - 3 - n.t*5, 6 + n.t*10, 6 + n.t*10);
+      fx.fillStyle = rgba(C[n.c], .7*a); fx.fillRect(n.x - 1.5, n.y - 1.5, 3, 3);
+    }
+    for (const p of packets){
+      const col = C[p.c], tx = p.h ? p.x - p.dir*p.len : p.x, ty = p.h ? p.y : p.y - p.dir*p.len;
+      const grd = fx.createLinearGradient(tx, ty, p.x, p.y);
+      grd.addColorStop(0, rgba(col, 0)); grd.addColorStop(1, rgba(col, .5));
+      fx.strokeStyle = grd; fx.lineWidth = 1.5; fx.beginPath(); fx.moveTo(tx, ty); fx.lineTo(p.x, p.y); fx.stroke();
+      fx.fillStyle = rgba(col, .85); fx.beginPath(); fx.arc(p.x, p.y, 1.8, 0, Math.PI*2); fx.fill();
+    }
+  }
+  sizeField(); drawField();
+  hooks.push(drawField);
+  addEventListener('resize', () => { sizeField(); drawField(); });
+  addEventListener('scroll', () => { scrollV += scrollY - lastY; lastY = scrollY; }, {passive: true});
+  addEventListener('pointermove', e => { if (e.pointerType === 'mouse'){ mx = e.clientX; my = e.clientY; } }, {passive: true});
+  document.addEventListener('pointerleave', () => { mx = my = -999; });
+  if (!reduce){
+    let lastF = performance.now();
+    (function tickField(now){
+      const dt = Math.min(64, now - lastF); lastF = now;
+      if (!document.hidden){ stepField(dt); drawField(); }
+      requestAnimationFrame(tickField);
+    })(lastF);
+  }
+
+  /* ---------- sections settle in as they arrive ---------- */
+  if (!reduce && 'IntersectionObserver' in window){
+    const secs = [...document.querySelectorAll('main section, .wrap > section')];
+    const sio = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting){ e.target.classList.add('in'); sio.unobserve(e.target); } }), {threshold: .12});
+    secs.forEach(s => { if (s.getBoundingClientRect().top > innerHeight){ s.classList.add('pre'); sio.observe(s); } });
+  }
 
   /* ---------- background: a wall of refreshing dashboards ---------- */
   const bg = document.getElementById('bg'), bx = bg.getContext('2d');
