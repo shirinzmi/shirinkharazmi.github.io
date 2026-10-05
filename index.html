@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Vazirmatn:wght@400;500;700;900&display=swap">
 <style>
-/* Layout: one narrow reading column; hero is a live "report canvas" — name as data points over a streaming series.
+/* Layout: one narrow reading column; hero is a live "report canvas" — name as data points over a faint wall of refreshing dashboards.
    Skins: auto (blueprint light / terminal dark), plus explicit terminal, blueprint, report, heatmap.
    Languages: English (LTR) and Persian (RTL, Vazirmatn); layout uses logical properties so it mirrors. */
 :root{
@@ -26,6 +26,7 @@
   --mono:"JetBrains Mono", Vazirmatn, Consolas, ui-monospace, monospace;
   --track:.12em; --h1track:-.04em;
   --radius:6px;
+  --good:#1f9d63; --bad:#e0484f;
 }
 :root[lang="fa"]{
   --display:Vazirmatn, "Segoe UI", Tahoma, sans-serif;
@@ -64,6 +65,7 @@
 :root:not([lang="fa"]) [data-l="fa"], :root[lang="fa"] [data-l="en"]{display:none!important}
 
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 html{scroll-behavior:smooth}
 body{background:var(--bg); color:var(--fg); font:16px/1.65 var(--body); padding-inline:20px; padding-block:0 64px;
   background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
@@ -99,7 +101,7 @@ nav .wrap{display:flex; align-items:center; gap:16px; flex-wrap:wrap; justify-co
 
 /* hero */
 .hero{position:relative; padding-block:56px 40px}
-#bg{position:absolute; inset:0; width:100%; height:100%; pointer-events:none; opacity:.9}
+#bg{position:absolute; inset:0; width:100%; height:100%; pointer-events:none}
 .hero > *:not(#bg){position:relative}
 .eyebrow{font:500 12px var(--mono); color:var(--accent2); text-transform:uppercase; letter-spacing:.14em}
 :root[lang="fa"] .eyebrow{font:500 14px var(--body); letter-spacing:0}
@@ -108,6 +110,7 @@ h1{font:800 clamp(56px,12vw,140px)/0.92 var(--display); letter-spacing:var(--h1t
 :root[lang="fa"] h1{font-weight:900; line-height:1.15}
 .particles-on h1{color:transparent}
 #name{position:absolute; left:0; top:0; pointer-events:none}
+.tagline{font:700 clamp(22px,3vw,30px)/1.3 var(--display); margin:0 0 10px; max-width:30ch; text-wrap:balance}
 .lede{font-size:clamp(18px,2.3vw,22px); max-width:36ch; margin:0 0 28px; text-wrap:balance}
 :root[lang="fa"] .lede{max-width:40ch}
 .lede em{font-style:normal; color:var(--accent)}
@@ -159,6 +162,12 @@ h2{font:700 clamp(28px,4vw,40px)/1.2 var(--display); letter-spacing:-.02em; marg
 .card.wide{grid-column:1/-1}
 
 /* experience */
+.role.geo{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,320px); gap:24px; align-items:start}
+.role.geo figure{margin:0; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:10px}
+.role.geo canvas{display:block; width:100%; aspect-ratio:4/3; max-width:100%}
+.role.geo figcaption{font:12px/1.5 var(--mono); color:var(--muted); margin-top:6px}
+:root[lang="fa"] .role.geo figcaption{font:13px/1.6 var(--body)}
+@media (max-width:760px){ .role.geo{grid-template-columns:1fr} }
 .xp{border-inline-start:2px solid var(--line); padding-inline-start:22px; display:grid; gap:28px}
 .role{position:relative}
 .role::before{content:""; position:absolute; inset-inline-start:-29px; top:8px; width:12px; height:12px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 4px var(--bg)}
@@ -182,6 +191,93 @@ h2{font:700 clamp(28px,4vw,40px)/1.2 var(--display); letter-spacing:-.02em; marg
 .certs li span{font:12px var(--mono); color:var(--muted); white-space:nowrap}
 .card a.more{font:13px var(--mono); text-decoration:none}
 :root[lang="fa"] .card a.more{font:14px var(--body)}
+
+/* dashboard replicas: a fixed 1000x640 canvas scaled into thumbnails and the lightbox */
+.dash-gallery{margin-top:18px; display:grid; gap:8px}
+.dash-note{font:12px var(--mono); color:var(--muted)}
+:root[lang="fa"] .dash-note{font:13px var(--body)}
+.dash-grid{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px}
+@media (max-width:760px){ .dash-grid{grid-template-columns:1fr} }
+.dash-item{display:flex; flex-direction:column; gap:6px; min-width:0}
+.dash-item p{margin:0; font-size:13px; color:var(--muted)}
+.dash-thumb{position:relative; display:block; width:100%; aspect-ratio:1000/640; overflow:hidden; padding:0; border:1px solid var(--line); border-radius:var(--radius); background:var(--surface); cursor:zoom-in; transition:border-color .2s, transform .2s}
+.dash-thumb:hover{border-color:var(--accent); transform:translateY(-2px)}
+.dash-thumb .dash, .lightbox .frame .dash{position:absolute; left:0; top:0; transform:scale(var(--s,.3)); transform-origin:0 0; pointer-events:none}
+.lightbox{position:fixed; inset:0; z-index:50; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; padding:16px;
+  background:color-mix(in srgb,var(--bg) 84%,transparent); backdrop-filter:blur(6px)}
+.lightbox .frame{position:relative; overflow:hidden; border:1px solid var(--line); border-radius:var(--radius); box-shadow:0 24px 60px rgba(0,0,0,.35); max-width:100%}
+.lightbox .cap{margin:0; color:var(--muted); font-size:14px; max-width:70ch; text-align:center}
+.lightbox .close{position:absolute; top:calc(14px + env(safe-area-inset-top,0px)); inset-inline-end:16px}
+
+.dash{width:1000px; height:640px; display:flex; overflow:hidden; direction:ltr; text-align:left; background:var(--bg); color:var(--fg);
+  font:12px/1.35 "IBM Plex Sans", Vazirmatn, system-ui, sans-serif; letter-spacing:0}
+.dash .good{color:var(--good)} .dash .bad{color:var(--bad)} .dash .acc{color:var(--accent)}
+.d-nav{width:148px; flex:none; display:flex; flex-direction:column; gap:5px; padding:14px 12px; background:var(--surface); border-right:1px solid var(--line); font-size:11.5px; color:var(--muted)}
+.d-nav .on{color:var(--fg); font-weight:600}
+.d-nav > div.on:not(.d-radio):not(.d-chip){background:var(--accent); color:var(--surface); border-radius:3px; padding:0 6px}
+.d-logo{font:700 17px/1.1 "Bricolage Grotesque", sans-serif; color:var(--fg); margin-bottom:8px}
+.d-radio{display:flex; align-items:center; gap:7px}
+.d-radio::before{content:""; width:9px; height:9px; border-radius:50%; border:1.5px solid var(--muted); flex:none}
+.d-radio.on::before{background:var(--fg); border-color:var(--fg)}
+.d-chip{border:1px solid var(--line); border-radius:99px; text-align:center; padding:2px 0}
+.d-chip.on{background:var(--fg); color:var(--surface); border-color:var(--fg)}
+.d-main{flex:1; min-width:0; display:flex; flex-direction:column; gap:9px; padding:12px 14px}
+.d-head{display:flex; justify-content:space-between; align-items:center; font-size:13px}
+.d-head span{font-size:11px; color:var(--muted); border:1px solid var(--line); border-radius:4px; padding:1px 8px}
+.d-row{display:grid; gap:9px}
+.d-card{background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:9px 11px; min-width:0; overflow:hidden}
+.d-t{font-size:10.5px; color:var(--muted); letter-spacing:.02em}
+.d-v{font:700 22px/1.15 "Bricolage Grotesque", sans-serif; font-variant-numeric:tabular-nums}
+.d-s{font-size:10.5px; color:var(--muted)}
+.d-range{position:relative; height:2px; background:var(--line); margin-top:9px}
+.d-range i{position:absolute; top:-3px; width:8px; height:8px; margin-left:-4px; border-radius:50%; background:var(--fg)}
+.d-agent{display:flex; align-items:center; gap:10px; padding-block:7px}
+.d-agent b{font-size:14px}
+.d-av{width:30px; height:30px; border-radius:50%; display:grid; place-items:center; background:var(--accent); color:var(--surface); font-weight:700; font-size:12px}
+.d-pill{margin-left:auto; font-size:11px; padding:3px 10px; border-radius:99px; border:1px solid var(--accent); color:var(--accent)}
+.d-ranks{display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:6px}
+.d-ranks span{display:flex; justify-content:space-between; background:var(--bg); border-radius:4px; padding:4px 7px; font-size:11px}
+.d-ranks b{font-size:14px}
+.d-sum{display:grid; gap:7px; font-size:11.5px}
+.d-tag{display:inline-block; font:600 9px "JetBrains Mono", monospace; padding:2px 6px; border-radius:3px; background:var(--fg); color:var(--surface); margin-right:7px}
+.d-tag.t2{background:var(--accent)} .d-tag.t3{background:var(--accent2)}
+.d-funnel{display:flex; flex-direction:column; gap:7px}
+.d-fr{display:grid; grid-template-columns:86px 1fr 34px; gap:8px; align-items:center; font-size:11px}
+.d-fr div{position:relative; height:16px}
+.d-fr i{position:absolute; inset:0 auto 0 0; border-radius:2px}
+.d-fr em{position:absolute; left:6px; top:1px; font-style:normal; font-size:10.5px; font-weight:600; color:var(--surface); mix-blend-mode:normal}
+.d-fr span:last-child{color:var(--muted); text-align:right}
+.d-mini{display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-top:auto}
+.d-mini div{background:var(--bg); border-radius:4px; padding:5px 7px; display:grid}
+.d-mini b{font-size:15px; color:var(--accent2)}
+.d-heat{display:grid; grid-template-columns:38px repeat(7,1fr); gap:2px; margin-top:6px}
+.d-hd{font-size:9.5px; text-align:center; color:var(--muted)}
+.d-hr{font-size:9px; color:var(--muted); line-height:14px}
+.d-cell{height:14px; border-radius:2px; background:color-mix(in srgb, var(--accent2) calc(var(--v) * 100%), transparent)}
+.d-headline{text-align:center; padding-block:7px}
+.d-headline .d-v{font-size:20px}
+.d-ns{display:flex; flex-direction:column; gap:3px}
+.d-ns .d-v{font-size:21px}
+.d-ns svg{margin-top:auto; max-width:100%}
+.d-ytd{display:flex; justify-content:space-between; align-items:baseline; border-top:1px solid var(--line); padding-top:4px; margin-top:2px}
+.d-ytd b{font-size:15px}
+.d-pb{display:grid; grid-template-columns:12px 1fr 34px; gap:6px; align-items:center; font-size:9.5px; color:var(--muted)}
+.d-pb div{height:4px; background:var(--line); border-radius:2px; overflow:hidden}
+.d-pb i{display:block; height:100%}
+.d-pb i.g, .d-db i.g{background:var(--good)} .d-pb i.r, .d-db i.r{background:var(--bad)}
+.d-pb em{font-style:normal; text-align:right}
+.d-axis{display:flex; justify-content:space-between; font-size:9.5px; color:var(--muted)}
+.d-hb, .d-db{display:grid; grid-template-columns:64px 1fr; gap:8px; align-items:center; font-size:10.5px; margin-top:9px}
+.d-hb div{height:16px} .d-hb i{display:block; height:100%; background:var(--fg); border-radius:2px}
+.d-db div{position:relative; height:16px; border-left:0}
+.d-db div::after{content:""; position:absolute; left:50%; top:-3px; bottom:-3px; width:1px; background:var(--line)}
+.d-db i{position:absolute; top:0; height:100%; border-radius:2px}
+.d-table{padding:4px 11px}
+.d-table table{width:100%; border-collapse:collapse; font-size:11.5px; font-variant-numeric:tabular-nums}
+.d-table th{font-weight:500; color:var(--muted); font-size:10.5px; text-align:right; padding:7px 4px; border-bottom:1px solid var(--line)}
+.d-table td{text-align:right; padding:7px 4px; border-bottom:1px solid var(--line)}
+.d-table th:first-child, .d-table td:first-child{text-align:left}
+.d-plat{font-size:10px; padding:1px 7px; border-radius:99px; background:color-mix(in srgb,var(--accent) 18%,transparent); color:var(--accent); font-weight:600}
 
 /* contact */
 .contact{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:28px; display:flex; flex-wrap:wrap; gap:20px; justify-content:space-between; align-items:center}
@@ -227,19 +323,21 @@ footer{margin-top:40px; font:12px var(--mono); color:var(--muted)}
     <canvas id="bg" aria-hidden="true"></canvas>
     <div class="eyebrow"><span data-l="en">Data Engineer · BI Developer · Mashhad, Iran</span><span data-l="fa">مهندس داده · توسعه‌دهنده‌ی BI · مشهد</span></div>
     <div class="namebox"><h1 id="h1" data-en="Shirin|Kharazmi" data-fa="شیرین|خوارزمی">Shirin<br>Kharazmi</h1><canvas id="name" aria-hidden="true"></canvas></div>
-    <p class="lede" data-l="en">I build the pipelines that move <em>trading, CRM and marketing data</em> into one warehouse, and the Power BI reports that run the business on top of it.</p>
-    <p class="lede" data-l="fa">پایپ‌لاین‌هایی می‌سازم که <em>داده‌های معاملات، CRM و بازاریابی</em> را در یک انبار داده جمع می‌کنند، و گزارش‌های Power BI که تصمیم‌های کسب‌وکار روی آن‌ها گرفته می‌شود.</p>
+    <p class="tagline" data-l="en">I build the data systems behind business decisions.</p>
+    <p class="lede" data-l="en">Pipelines that bring <em>trading, CRM, sales and support data</em> into one reliable analytical layer, and the Power BI models that management and sales teams use every day.</p>
+    <p class="tagline" data-l="fa">سیستم‌های داده‌ای می‌سازم که تصمیم‌های کسب‌وکار روی آن‌ها گرفته می‌شود.</p>
+    <p class="lede" data-l="fa">پایپ‌لاین‌هایی که <em>داده‌های معاملات، CRM، فروش و پشتیبانی</em> را در یک لایه‌ی تحلیلی قابل‌اعتماد جمع می‌کنند، و مدل‌های Power BI که مدیریت و تیم فروش هر روز با آن‌ها کار می‌کنند.</p>
     <div class="kpis" data-l="en">
-      <div class="kpi"><b>4+</b><span>years in data</span></div>
-      <div class="kpi"><b>MT4/5</b><span>+ CRM + Search Console, one warehouse</span></div>
-      <div class="kpi"><b>0.917</b><span>F1, 4th place Amirkabir AI</span></div>
-      <div class="kpi"><b>18.34</b><span>M.S. GPA / 20, Ferdowsi</span></div>
+      <div class="kpi"><b>43</b><span>Airflow DAGs in production</span></div>
+      <div class="kpi"><b>~50M</b><span>rows processed a day</span></div>
+      <div class="kpi"><b>98.5%</b><span>run success, last 30 days</span></div>
+      <div class="kpi"><b>8</b><span>source systems, one warehouse</span></div>
     </div>
     <div class="kpis" data-l="fa">
-      <div class="kpi"><b>۴+</b><span>سال سابقه در حوزه‌ی داده</span></div>
-      <div class="kpi"><b class="ltr">MT4/5</b><span>به‌همراه CRM و Search Console در یک انبار</span></div>
-      <div class="kpi"><b>۰٫۹۱۷</b><span>امتیاز F1، رتبه‌ی چهارم مسابقه‌ی امیرکبیر</span></div>
-      <div class="kpi"><b>۱۸٫۳۴</b><span>معدل کارشناسی ارشد، دانشگاه فردوسی</span></div>
+      <div class="kpi"><b>۴۳</b><span>DAG فعال Airflow در پروداکشن</span></div>
+      <div class="kpi"><b class="ltr" style="text-align:right">~۵۰M</b><span>ردیف پردازش‌شده در روز</span></div>
+      <div class="kpi"><b>۹۸٫۵٪</b><span>نرخ موفقیت اجراها در ۳۰ روز اخیر</span></div>
+      <div class="kpi"><b>۸</b><span>سیستم مبدأ در یک انبار داده</span></div>
     </div>
     <div class="cta">
       <a class="btn primary" href="#work"><span data-l="en">See the work</span><span data-l="fa">نمونه‌کارها</span></a>
@@ -285,7 +383,13 @@ footer{margin-top:40px; font:12px var(--mono); color:var(--muted)}
           <div class="tags"><span class="tag">Data warehouse</span><span class="tag">Airflow</span><span class="tag">Celery</span><span class="tag">Redis</span></div>
           <h3>Centralized trading data warehouse</h3>
           <p>One analytical layer over MetaTrader 4/5, CRM systems and Google Search Console. Ingestion, normalization and aggregation run as Airflow DAGs on CeleryExecutor, with validation, deduplication and schema checks on every path.</p>
-          <div class="impact">→ every report in the company reads from the same tables</div>
+          <div class="impact">→ 43 DAGs, ~244 runs a day, 98.5% success; the two largest tables (5M and 11.6M rows) load incrementally</div>
+        </article>
+        <article class="card">
+          <div class="tags"><span class="tag">Deneb</span><span class="tag">Vega-Lite</span><span class="tag">RLS</span></div>
+          <h3>Sales activity dashboards</h3>
+          <p>Last login, call and note per salesperson in custom Deneb visuals, and a lean agent model where each person sees only their own clients.</p>
+          <div class="impact">→ security enforced per user, not per report</div>
         </article>
         <article class="card">
           <div class="tags"><span class="tag">Power BI</span><span class="tag">DAX</span><span class="tag">KPI design</span></div>
@@ -297,7 +401,7 @@ footer{margin-top:40px; font:12px var(--mono); color:var(--muted)}
           <div class="tags"><span class="tag">Python</span><span class="tag">REST API</span></div>
           <h3>Support chat pipeline</h3>
           <p>Pulls conversations and per-episode SLA data from Crisp under a 500-request daily API limit, with a backfill that resumes where it stopped.</p>
-          <div class="impact">→ full chat history, no API overruns</div>
+          <div class="impact">→ 1,397 runs in 30 days, zero failures; peak use 92% of the daily quota</div>
         </article>
         <article class="card">
           <div class="tags"><span class="tag">Data modeling</span><span class="tag">CSAT</span></div>
@@ -310,12 +414,6 @@ footer{margin-top:40px; font:12px var(--mono); color:var(--muted)}
           <h3>Partner rebate model</h3>
           <p>Rebates for introducing brokers, calculated from each partner's own client activity and reconciled with finance.</p>
           <div class="impact">→ every payout traceable to client rows</div>
-        </article>
-        <article class="card">
-          <div class="tags"><span class="tag">Deneb</span><span class="tag">Vega-Lite</span><span class="tag">RLS</span></div>
-          <h3>Sales activity dashboards</h3>
-          <p>Last login, call and note per salesperson in custom Deneb visuals, and a lean agent model where each person sees only their own clients.</p>
-          <div class="impact">→ security enforced per user, not per report</div>
         </article>
         <article class="card">
           <div class="tags"><span class="tag">Figma</span><span class="tag">Dashboard design</span></div>
@@ -352,7 +450,13 @@ footer{margin-top:40px; font:12px var(--mono); color:var(--muted)}
           <div class="tags"><span class="tag">Data warehouse</span><span class="tag">Airflow</span><span class="tag">Celery</span><span class="tag">Redis</span></div>
           <h3>انبار داده‌ی مرکزی معاملات</h3>
           <p>یک لایه‌ی تحلیلی واحد روی متاتریدر ۴ و ۵، سیستم‌های CRM و Google Search Console. دریافت، نرمال‌سازی و تجمیع داده به‌صورت DAGهای Airflow روی CeleryExecutor اجرا می‌شود و هر مسیر ورودی اعتبارسنجی، حذف رکورد تکراری و کنترل اسکیما دارد.</p>
-          <div class="impact">← همه‌ی گزارش‌های شرکت از همین جدول‌ها می‌خوانند</div>
+          <div class="impact">← ۴۳ DAG، حدود ۲۴۴ اجرا در روز، ۹۸٫۵٪ موفقیت؛ دو جدول بزرگ (۵ و ۱۱٫۶ میلیون ردیف) به‌صورت افزایشی بارگذاری می‌شوند</div>
+        </article>
+        <article class="card">
+          <div class="tags"><span class="tag">Deneb</span><span class="tag">Vega-Lite</span><span class="tag">RLS</span></div>
+          <h3>داشبوردهای فعالیت فروش</h3>
+          <p>آخرین ورود، تماس و یادداشت هر کارشناس فروش با ویژوال‌های سفارشی Deneb، و یک مدل سبک که هر کارشناس فقط مشتری‌های خودش را می‌بیند.</p>
+          <div class="impact">← امنیت برای هر کاربر، نه برای هر گزارش</div>
         </article>
         <article class="card">
           <div class="tags"><span class="tag">Power BI</span><span class="tag">DAX</span><span class="tag">KPI design</span></div>
@@ -364,7 +468,7 @@ footer{margin-top:40px; font:12px var(--mono); color:var(--muted)}
           <div class="tags"><span class="tag">Python</span><span class="tag">REST API</span></div>
           <h3>پایپ‌لاین چت پشتیبانی</h3>
           <p>گفتگوها و SLA هر نوبت پاسخ‌گویی را از Crisp می‌گیرد، با سقف ۵۰۰ درخواست API در روز و بک‌فیلی که از همان جایی که متوقف شده ادامه می‌دهد.</p>
-          <div class="impact">← تاریخچه‌ی کامل چت، بدون عبور از سقف API</div>
+          <div class="impact">← ۱٬۳۹۷ اجرا در ۳۰ روز بدون حتی یک شکست؛ اوج مصرف ۹۲٪ سهمیه‌ی روزانه</div>
         </article>
         <article class="card">
           <div class="tags"><span class="tag">Data modeling</span><span class="tag">CSAT</span></div>
@@ -377,12 +481,6 @@ footer{margin-top:40px; font:12px var(--mono); color:var(--muted)}
           <h3>مدل ریبیت شرکا</h3>
           <p>محاسبه‌ی ریبیت معرف‌ها (IB) بر اساس فعالیت مشتری‌های خود هر معرف، تطبیق‌داده‌شده با واحد مالی.</p>
           <div class="impact">← هر پرداخت تا سطر مشتری قابل ردیابی است</div>
-        </article>
-        <article class="card">
-          <div class="tags"><span class="tag">Deneb</span><span class="tag">Vega-Lite</span><span class="tag">RLS</span></div>
-          <h3>داشبوردهای فعالیت فروش</h3>
-          <p>آخرین ورود، تماس و یادداشت هر کارشناس فروش با ویژوال‌های سفارشی Deneb، و یک مدل سبک که هر کارشناس فقط مشتری‌های خودش را می‌بیند.</p>
-          <div class="impact">← امنیت برای هر کاربر، نه برای هر گزارش</div>
         </article>
         <article class="card">
           <div class="tags"><span class="tag">Figma</span><span class="tag">Dashboard design</span></div>
@@ -423,21 +521,25 @@ footer{margin-top:40px; font:12px var(--mono); color:var(--muted)}
           <div class="when">Jul 2023 – Present · Mashhad</div>
           <ul>
             <li>Designed a centralized warehouse integrating MetaTrader 4/5, CRM and Google Search Console.</li>
-            <li>Built ETL across high-volume trading and marketing data: ingestion, transformation, normalization, aggregation.</li>
-            <li>Ran Airflow on CeleryExecutor with Redis for distributed, fault-tolerant scheduling.</li>
+            <li>Built ETL across high-volume trading, CRM and sales data: ingestion, transformation, normalization, aggregation.</li>
+            <li>Ran Airflow on CeleryExecutor with Redis: 43 active DAGs, ~244 runs a day, 98.5% success over the last 30 days, about 50 million rows processed daily.</li>
             <li>Applied validation, deduplication and schema checks on every ingestion path.</li>
             <li>Built Power BI reporting layers and KPI dashboards, defining the KPIs with stakeholders.</li>
           </ul>
+          <div class="dash-slot"></div>
         </div>
-        <div class="role">
-          <h3>Data Scientist · Hotelian.com</h3>
-          <div class="when">Jun 2022 – Apr 2023 · Mashhad</div>
-          <ul>
-            <li>Built anomaly detection pipelines that caught data discrepancies before they reached reports.</li>
-            <li>Improved Elasticsearch indexing; scraped and processed proxy data at scale.</li>
-            <li>Ran sentiment analysis and text mining on large unstructured datasets.</li>
-            <li>Built geo-analytics dashboards from OpenStreetMap data in Streamlit.</li>
-          </ul>
+        <div class="role geo">
+          <div>
+            <h3>Data Scientist · Hotelian.com</h3>
+            <div class="when">Jun 2022 – Apr 2023 · Mashhad</div>
+            <ul>
+              <li>Built anomaly detection pipelines that caught data discrepancies before they reached reports.</li>
+              <li>Improved Elasticsearch indexing; scraped and processed proxy data at scale.</li>
+              <li>Ran sentiment analysis and text mining on large unstructured datasets.</li>
+              <li>Built geo-analytics dashboards from OpenStreetMap data in Streamlit.</li>
+            </ul>
+          </div>
+          <figure><canvas aria-hidden="true"></canvas><figcaption>Illustration: hotel locations over OpenStreetMap-style streets, Paris</figcaption></figure>
         </div>
         <div class="role">
           <h3>Data Scientist Intern · Datahub</h3>
@@ -456,21 +558,25 @@ footer{margin-top:40px; font:12px var(--mono); color:var(--muted)}
           <div class="when">ژوئیه‌ی ۲۰۲۳ تا اکنون · مشهد</div>
           <ul>
             <li>طراحی انبار داده‌ی مرکزی با ادغام متاتریدر ۴ و ۵، CRM و Google Search Console.</li>
-            <li>ساخت فرایندهای ETL روی داده‌های پرحجم معاملاتی و بازاریابی: دریافت، تبدیل، نرمال‌سازی و تجمیع.</li>
-            <li>راه‌اندازی Airflow با CeleryExecutor و Redis برای زمان‌بندی توزیع‌شده و مقاوم در برابر خطا.</li>
+            <li>ساخت فرایندهای ETL روی داده‌های پرحجم معاملات، CRM و فروش: دریافت، تبدیل، نرمال‌سازی و تجمیع.</li>
+            <li>راه‌اندازی Airflow با CeleryExecutor و Redis: ۴۳ DAG فعال، حدود ۲۴۴ اجرا در روز، ۹۸٫۵٪ موفقیت در ۳۰ روز اخیر و پردازش روزانه‌ی حدود ۵۰ میلیون ردیف.</li>
             <li>اعمال اعتبارسنجی، حذف رکورد تکراری و کنترل اسکیما روی همه‌ی مسیرهای ورود داده.</li>
             <li>ساخت لایه‌ی گزارش‌دهی Power BI و داشبوردهای KPI، و تعریف KPIها همراه ذی‌نفعان.</li>
           </ul>
+          <div class="dash-slot"></div>
         </div>
-        <div class="role">
-          <h3>دانشمند داده · Hotelian.com</h3>
-          <div class="when">ژوئن ۲۰۲۲ تا آوریل ۲۰۲۳ · مشهد</div>
-          <ul>
-            <li>ساخت پایپ‌لاین‌های تشخیص ناهنجاری که مغایرت داده‌ها را پیش از رسیدن به گزارش‌ها پیدا می‌کرد.</li>
-            <li>بهبود ایندکس‌گذاری Elasticsearch و جمع‌آوری و پردازش داده‌ی پراکسی در مقیاس بالا.</li>
-            <li>تحلیل احساسات و متن‌کاوی روی داده‌های متنی بزرگ و بدون ساختار.</li>
-            <li>ساخت داشبوردهای تحلیل جغرافیایی با داده‌ی OpenStreetMap در Streamlit.</li>
-          </ul>
+        <div class="role geo">
+          <div>
+            <h3>دانشمند داده · Hotelian.com</h3>
+            <div class="when">ژوئن ۲۰۲۲ تا آوریل ۲۰۲۳ · مشهد</div>
+            <ul>
+              <li>ساخت پایپ‌لاین‌های تشخیص ناهنجاری که مغایرت داده‌ها را پیش از رسیدن به گزارش‌ها پیدا می‌کرد.</li>
+              <li>بهبود ایندکس‌گذاری Elasticsearch و جمع‌آوری و پردازش داده‌ی پراکسی در مقیاس بالا.</li>
+              <li>تحلیل احساسات و متن‌کاوی روی داده‌های متنی بزرگ و بدون ساختار.</li>
+              <li>ساخت داشبوردهای تحلیل جغرافیایی با داده‌ی OpenStreetMap در Streamlit.</li>
+            </ul>
+          </div>
+          <figure><canvas aria-hidden="true"></canvas><figcaption>تصویر نمادین: موقعیت هتل‌ها روی خیابان‌های پاریس به سبک OpenStreetMap</figcaption></figure>
         </div>
         <div class="role">
           <h3>کارآموز علم داده · Datahub</h3>
@@ -598,6 +704,7 @@ footer{margin-top:40px; font:12px var(--mono); color:var(--muted)}
   const css = n => getComputedStyle(root).getPropertyValue(n).trim();
   const store = { get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }, set(k,v){ try { localStorage.setItem(k,v); } catch(e){} } };
   let rebuildName = () => {};
+  const hooks = [];  // redraws that depend on colors or text direction
 
   /* ---------- language ---------- */
   const h1 = document.getElementById('h1'), copyBtn = document.getElementById('copy');
@@ -606,6 +713,7 @@ footer{margin-top:40px; font:12px var(--mono); color:var(--muted)}
     h1.innerHTML = h1.dataset[l].split('|').join('<br>');
     copyBtn.textContent = copyBtn.dataset[l];
     store.set('lang', l);
+    hooks.forEach(f => f());
     const font = l === 'fa' ? '900 100px Vazirmatn' : '800 100px "Bricolage Grotesque"';
     (document.fonts ? document.fonts.load(font, l === 'fa' ? 'شیرین' : 'Shirin') : Promise.resolve()).catch(() => {}).then(() => rebuildName());
   }
@@ -634,35 +742,288 @@ footer{margin-top:40px; font:12px var(--mono); color:var(--muted)}
   });
 
   let C = {};
-  function readColors(){ C = { accent: css('--accent'), accent2: css('--accent2'), fg: css('--fg') }; }
+  function readColors(){
+    C = { accent: css('--accent'), accent2: css('--accent2'), fg: css('--fg'), muted: css('--muted'), line: css('--line'), surface: css('--surface'), mono: css('--mono') };
+    C.key = C.accent + C.accent2 + C.line + C.surface;
+    hooks.forEach(f => f());
+  }
   setSkin(store.get('skin') || 'auto');
   readColors();
   matchMedia('(prefers-color-scheme: dark)').addEventListener('change', readColors);
 
-  /* ---------- background: streaming series ---------- */
+  const rnd = (a,b) => a + Math.random()*(b-a), lerp = (a,b,k) => a + (b-a)*k;
+  const rrect = (c,x,y,w,h,r) => { c.beginPath(); c.roundRect ? c.roundRect(x,y,w,h,r) : c.rect(x,y,w,h); };
+
+  /* ---------- background: a wall of refreshing dashboards ---------- */
   const bg = document.getElementById('bg'), bx = bg.getContext('2d');
-  const series = [[], []];
-  let t = 0;
-  function sizeBg(){ const r = bg.getBoundingClientRect(), d = devicePixelRatio || 1; bg.width = r.width * d; bg.height = r.height * d; bx.setTransform(d,0,0,d,0,0); }
-  function nextVal(i){ t += 0.02; return 0.5 + 0.18*Math.sin(t*(1.3+i) + i*2) + 0.1*Math.sin(t*3.7+i) + (Math.random()-.5)*0.05; }
-  function drawBg(){
-    const w = bg.clientWidth, h = bg.clientHeight, step = 8, n = Math.ceil(w/step)+2;
-    series.forEach((s,i) => { while (s.length < n) s.push(nextVal(i)); if (s.length > n) s.splice(0, s.length-n); });
-    bx.clearRect(0,0,w,h);
-    [C.accent2, C.accent].forEach((col,i) => {
-      const s = series[i], base = h*(i ? .78 : .62), amp = h*.35;
-      bx.beginPath();
-      s.forEach((v,k) => { const x = k*step, y = base - (v-.5)*amp*2; k ? bx.lineTo(x,y) : bx.moveTo(x,y); });
-      bx.strokeStyle = col; bx.globalAlpha = .28; bx.lineWidth = 1.5; bx.stroke();
-      bx.lineTo((s.length-1)*step, h); bx.lineTo(0, h); bx.closePath();
-      bx.globalAlpha = .05; bx.fillStyle = col; bx.fill(); bx.globalAlpha = 1;
-    });
+  const TYPES = ['kpi','bars','spark','donut','table','area'];
+  let tiles = [], BW = 0, BH = 0;
+  function makeTile(type){
+    const t = {type};
+    if (type === 'kpi'){ t.v = rnd(8000,40000); t.tv = t.v; t.d = rnd(-6,9); }
+    if (type === 'bars' || type === 'table'){ t.v = Array.from({length: type === 'bars' ? 7 : 4}, () => rnd(.2,1)); t.tv = t.v.slice(); }
+    if (type === 'donut'){ t.v = [rnd(1,3), rnd(1,3), rnd(.5,2)]; t.tv = t.v.slice(); }
+    if (type === 'spark' || type === 'area'){ t.s = Array.from({length:24}, (_,i) => .5 + .3*Math.sin(i/3 + Math.random()*6)); }
+    return t;
   }
-  sizeBg(); drawBg();
-  let last = 0;
-  function tickBg(ts){ if (ts - last > 90){ series.forEach((s,i) => { s.shift(); s.push(nextVal(i)); }); drawBg(); last = ts; } requestAnimationFrame(tickBg); }
+  function layoutBg(){
+    const r = bg.getBoundingClientRect(), d = Math.min(devicePixelRatio || 1, 2);
+    BW = r.width; BH = r.height; bg.width = BW*d; bg.height = BH*d; bx.setTransform(d,0,0,d,0,0);
+    const tw = BW < 600 ? 140 : 180, th = BW < 600 ? 92 : 112, gap = 14;
+    const cols = Math.max(1, Math.floor((BW+gap)/(tw+gap))), rows = Math.max(1, Math.floor((BH+gap)/(th+gap)));
+    const ox = (BW - (cols*(tw+gap) - gap))/2, oy = (BH - (rows*(th+gap) - gap))/2, old = tiles;
+    tiles = [];
+    for (let rr = 0; rr < rows; rr++) for (let c = 0; c < cols; c++){
+      const i = rr*cols + c, t = old[i] || makeTile(TYPES[(i*7 + rr) % TYPES.length]);
+      Object.assign(t, {x: ox + c*(tw+gap), y: oy + rr*(th+gap), w: tw, h: th});
+      tiles.push(t);
+    }
+  }
+  function drawTile(t, a){
+    const {x, y, w, h} = t, p = 12, ix = x+p, iy = y+p+12, iw = w-2*p, ih = h-2*p-12;
+    bx.globalAlpha = a; bx.fillStyle = C.surface; bx.strokeStyle = C.line; bx.lineWidth = 1;
+    rrect(bx, x, y, w, h, 6); bx.fill(); bx.stroke();
+    bx.fillStyle = C.line; bx.fillRect(ix, y+p, w*.35, 4);
+    if (t.type === 'kpi'){
+      bx.direction = 'ltr'; bx.textAlign = 'left'; bx.textBaseline = 'alphabetic';
+      bx.fillStyle = C.fg; bx.font = `700 ${Math.round(ih*.42)}px ${C.mono}`;
+      bx.fillText(Math.round(t.v).toLocaleString('en-US'), ix, iy + ih*.55);
+      bx.fillStyle = t.d >= 0 ? C.accent2 : C.accent; bx.font = `600 ${Math.round(ih*.2)}px ${C.mono}`;
+      bx.fillText((t.d >= 0 ? '▲ ' : '▼ ') + Math.abs(t.d).toFixed(1) + '%', ix, iy + ih*.92);
+    } else if (t.type === 'bars'){
+      const n = t.v.length, bw = iw/n;
+      t.v.forEach((v,i) => { bx.globalAlpha = a*(i === n-1 ? 1 : .55); bx.fillStyle = i === n-1 ? C.accent : C.accent2; bx.fillRect(ix + i*bw + 2, iy + ih*(1-v), bw-4, ih*v); });
+    } else if (t.type === 'donut'){
+      const R = ih/2, cx0 = ix + R, cy0 = iy + R, tot = t.v.reduce((s,v) => s+v, 0), cols = [C.accent, C.accent2, C.muted];
+      let s0 = -Math.PI/2; bx.lineWidth = R*.32;
+      t.v.forEach((v,i) => { const e = s0 + v/tot*Math.PI*2; bx.strokeStyle = cols[i]; bx.beginPath(); bx.arc(cx0, cy0, R*.8, s0+.05, e-.05); bx.stroke(); s0 = e; });
+      bx.lineWidth = 1;
+      for (let i = 0; i < 3; i++){ const ly = iy + ih*(.18 + i*.3); bx.fillStyle = cols[i]; bx.fillRect(ix + ih + 12, ly, 8, 8); bx.fillStyle = C.line; bx.fillRect(ix + ih + 26, ly + 2, iw - ih - 30, 4); }
+    } else if (t.type === 'table'){
+      const rh = ih/4;
+      t.v.forEach((v,i) => { bx.globalAlpha = a; bx.fillStyle = C.line; bx.fillRect(ix, iy + i*rh + rh*.3, iw*.35, 4); bx.globalAlpha = a*.8; bx.fillStyle = i % 2 ? C.accent2 : C.accent; bx.fillRect(ix + iw*.45, iy + i*rh + rh*.15, iw*.55*v, rh*.5); });
+    } else {
+      const s = t.s, n = s.length, col = t.type === 'spark' ? C.accent : C.accent2;
+      bx.beginPath(); s.forEach((v,i) => { const X = ix + i/(n-1)*iw, Y = iy + ih*(1-v); i ? bx.lineTo(X,Y) : bx.moveTo(X,Y); });
+      bx.strokeStyle = col; bx.lineWidth = 1.5; bx.stroke();
+      if (t.type === 'area'){ bx.lineTo(ix+iw, iy+ih); bx.lineTo(ix, iy+ih); bx.closePath(); bx.globalAlpha = a*.18; bx.fillStyle = col; bx.fill(); bx.globalAlpha = a; }
+      bx.fillStyle = col; bx.beginPath(); bx.arc(ix+iw, iy + ih*(1-s[n-1]), 2.5, 0, Math.PI*2); bx.fill(); bx.lineWidth = 1;
+    }
+  }
+  let lastRefresh = 0, lastSpark = 0;
+  function stepBg(ts){
+    if (ts - lastRefresh > 2200){
+      lastRefresh = ts;
+      tiles.forEach(t => {
+        if (Math.random() > .45) return;
+        if (t.type === 'kpi'){ t.tv = t.v*(1 + rnd(-.06,.08)); t.d = rnd(-6,9); }
+        else if (t.tv) t.tv = t.tv.map(() => t.type === 'donut' ? rnd(.5,3) : rnd(.15,1));
+      });
+    }
+    if (ts - lastSpark > 450){
+      lastSpark = ts;
+      tiles.forEach(t => { if (t.s){ const l = t.s[t.s.length-1]; t.s.shift(); t.s.push(Math.min(.95, Math.max(.08, l + rnd(-.12,.12)))); } });
+    }
+    tiles.forEach(t => { if (t.type === 'kpi') t.v = lerp(t.v, t.tv, .06); else if (t.tv) t.v = t.v.map((v,i) => lerp(v, t.tv[i], .06)); });
+  }
+  function drawBg(){
+    if (!BW) return;
+    bx.clearRect(0,0,BW,BH);
+    const rtl = root.dir === 'rtl', k = BW < 700 ? .5 : 1;
+    for (const t of tiles){ let f = (t.x + t.w/2)/BW; if (rtl) f = 1-f; drawTile(t, (.05 + .4*f*f)*k); }  // fade toward the text side
+    bx.globalAlpha = 1;
+  }
+  let heroVisible = true, lastBg = 0;
+  new IntersectionObserver(es => { heroVisible = es[0].isIntersecting; }).observe(bg);
+  layoutBg(); drawBg();
+  hooks.push(drawBg);
+  function tickBg(ts){ if (heroVisible && !document.hidden && ts - lastBg > 33){ stepBg(ts); drawBg(); lastBg = ts; } requestAnimationFrame(tickBg); }
   if (!reduce) requestAnimationFrame(tickBg);
-  addEventListener('resize', () => { sizeBg(); drawBg(); });
+  addEventListener('resize', () => { layoutBg(); drawBg(); });
+
+  /* ---------- Paris map beside the Hotelian role ---------- */
+  const seeded = seed => () => (seed = (seed*16807) % 2147483647) / 2147483647;
+  const SEINE = [[1.02,.70],[.86,.63],[.72,.58],[.62,.53],[.55,.50],[.47,.48],[.40,.50],[.33,.56],[.27,.62],[.20,.64],[.13,.58],[.09,.46],[.05,.36],[-.02,.30]];
+  const PINS = [], pr = seeded(7);
+  while (PINS.length < 26){ const x = pr(), y = pr(); if (((x-.5)/.42)**2 + ((y-.5)/.36)**2 < .85) PINS.push({x, y, big: pr() < .25}); }
+  const maps = [...document.querySelectorAll('.geo canvas')].map(cv => ({cv, cx: cv.getContext('2d'), base: document.createElement('canvas'), key: '', vis: false, t0: performance.now(), W: 0, H: 0}));
+  function drawBase(m){
+    const W = m.cv.clientWidth, H = m.cv.clientHeight, d = Math.min(devicePixelRatio || 1, 2);
+    m.cv.width = m.base.width = W*d; m.cv.height = m.base.height = H*d; m.cx.setTransform(d,0,0,d,0,0);
+    const c = m.base.getContext('2d'), r = seeded(11); c.setTransform(d,0,0,d,0,0);
+    m.W = W; m.H = H; m.key = C.key + W + 'x' + H;
+    c.clearRect(0,0,W,H);
+    c.save(); c.beginPath(); c.ellipse(W*.5, H*.5, W*.44, H*.38, -.08, 0, Math.PI*2); c.clip();
+    c.strokeStyle = C.line; c.lineWidth = .7;
+    for (let i = 0; i < 70; i++){ const x = r()*W, y = r()*H, a = r()*Math.PI, L = (.15 + r()*.5)*W; c.beginPath(); c.moveTo(x - Math.cos(a)*L/2, y - Math.sin(a)*L/2); c.lineTo(x + Math.cos(a)*L/2, y + Math.sin(a)*L/2); c.stroke(); }
+    c.strokeStyle = C.muted; c.globalAlpha = .55; c.lineWidth = 1.2;
+    const ex = W*.30, ey = H*.36;  // Étoile and its twelve avenues
+    for (let i = 0; i < 12; i++){ const a = i/12*Math.PI*2 + .1; c.beginPath(); c.moveTo(ex, ey); c.lineTo(ex + Math.cos(a)*W*.16, ey + Math.sin(a)*W*.16); c.stroke(); }
+    c.beginPath(); c.ellipse(W*.53, H*.44, W*.2, H*.15, -.15, Math.PI*1.05, Math.PI*2.02); c.stroke();  // grands boulevards
+    c.restore();
+    c.strokeStyle = C.muted; c.globalAlpha = .7; c.lineWidth = 2;
+    c.beginPath(); c.ellipse(W*.5, H*.5, W*.44, H*.38, -.08, 0, Math.PI*2); c.stroke();  // périphérique
+    c.globalAlpha = .6; c.strokeStyle = C.accent2; c.lineWidth = 5; c.lineCap = 'round'; c.lineJoin = 'round';
+    c.beginPath(); c.moveTo(SEINE[0][0]*W, SEINE[0][1]*H);
+    for (let i = 1; i < SEINE.length-1; i++) c.quadraticCurveTo(SEINE[i][0]*W, SEINE[i][1]*H, (SEINE[i][0]+SEINE[i+1][0])/2*W, (SEINE[i][1]+SEINE[i+1][1])/2*H);
+    c.stroke();
+    c.globalAlpha = 1; c.fillStyle = C.surface; c.beginPath(); c.ellipse(W*.555, H*.502, W*.022, H*.008, -.3, 0, Math.PI*2); c.fill();  // Île de la Cité
+    c.globalAlpha = .9; c.fillStyle = C.muted; c.font = `500 10px ${C.mono}`; c.direction = 'ltr'; c.textAlign = 'left';
+    [[.27,.60,'Tour Eiffel'],[.50,.45,'Louvre'],[.56,.53,'Notre-Dame'],[.54,.20,'Montmartre'],[.30,.36,'Étoile']].forEach(([x,y,n]) => { c.beginPath(); c.arc(x*W, y*H, 2.2, 0, Math.PI*2); c.fill(); c.fillText(n, x*W + 5, y*H - 4); });
+    c.globalAlpha = 1;
+  }
+  function drawMap(m, now){
+    const {cx, W, H} = m; if (!W) return;
+    cx.clearRect(0,0,W,H); cx.drawImage(m.base, 0, 0, W, H);
+    const cycle = 14, ph = ((now - m.t0)/1000) % cycle, fade = ph > cycle - 1.2 ? Math.max(0, (cycle - ph)/1.2) : 1;
+    PINS.forEach((p,i) => {
+      const age = ph - i*.35; if (age < 0) return;
+      const x = p.x*W, y = p.y*H, rp = (age % 2.4)/2.4, rad = (p.big ? 5 : 3.5)*Math.min(1, age/.35);
+      cx.globalAlpha = (1-rp)*.5*fade; cx.strokeStyle = C.accent; cx.lineWidth = 1.2;
+      cx.beginPath(); cx.arc(x, y, 4 + rp*(p.big ? 22 : 14), 0, Math.PI*2); cx.stroke();
+      cx.globalAlpha = fade; cx.fillStyle = C.accent;
+      cx.beginPath(); cx.arc(x, y - rad, rad, 0, Math.PI*2); cx.fill();
+      cx.beginPath(); cx.moveTo(x - rad*.7, y - rad*.6); cx.lineTo(x, y + rad*.7); cx.lineTo(x + rad*.7, y - rad*.6); cx.fill();
+    });
+    cx.globalAlpha = 1;
+  }
+  const fresh = m => m.key === C.key + m.cv.clientWidth + 'x' + m.cv.clientHeight;
+  if (reduce){
+    const still = () => maps.forEach(m => { if (m.cv.offsetParent){ drawBase(m); drawMap(m, m.t0 + 9000); } });  // every pin placed
+    hooks.push(still); still(); addEventListener('resize', still);
+  } else {
+    const mio = new IntersectionObserver(es => es.forEach(e => { maps.find(m => m.cv === e.target).vis = e.isIntersecting; }));
+    maps.forEach(m => mio.observe(m.cv));
+    (function tickMaps(now){
+      maps.forEach(m => { if (!m.vis || document.hidden) return; if (!fresh(m)) drawBase(m); drawMap(m, now); });
+      requestAnimationFrame(tickMaps);
+    })(performance.now());
+  }
+
+  /* ---------- dashboard replicas (synthetic data, layouts from production reports) ---------- */
+  const sr = seeded(42);
+  function smooth(pts){
+    let d = `M${pts[0][0].toFixed(1)},${pts[0][1].toFixed(1)}`;
+    for (let i = 0; i < pts.length-1; i++){
+      const p0 = pts[i-1] || pts[i], p1 = pts[i], p2 = pts[i+1], p3 = pts[i+2] || p2;
+      const c1 = [p1[0] + (p2[0]-p0[0])/6, p1[1] + (p2[1]-p0[1])/6], c2 = [p2[0] - (p3[0]-p1[0])/6, p2[1] - (p3[1]-p1[1])/6];
+      d += ` C${c1[0].toFixed(1)},${c1[1].toFixed(1)} ${c2[0].toFixed(1)},${c2[1].toFixed(1)} ${p2[0].toFixed(1)},${p2[1].toFixed(1)}`;
+    }
+    return d;
+  }
+  function spark(vals, w, h, color = 'var(--fg)'){
+    const mx = Math.max(...vals), mn = Math.min(...vals), pad = 3;
+    const pts = vals.map((v,i) => [pad + i*(w-2*pad)/(vals.length-1), pad + (h-2*pad)*(1 - (v-mn)/((mx-mn) || 1))]);
+    const d = smooth(pts);
+    return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" aria-hidden="true"><path d="${d} L${pts[pts.length-1][0]},${h} L${pts[0][0]},${h}Z" style="fill:var(--accent);opacity:.12"/><path d="${d}" style="fill:none;stroke:${color};stroke-width:1.6"/></svg>`;
+  }
+  const series = (n, base, vol) => { let v = base; return Array.from({length:n}, () => (v = Math.max(base*.15, v + (sr()-.45)*vol))); };
+  const PAGES = ['Targets & KPIs','Campaigns','Leads & Users','Agents Change Log','Monthly Reports','Explore Agents','Client Details','IB','Traders','Payment Methods','Support'];
+  const navPages = on => PAGES.map(p => `<div class="${p === on ? 'on' : ''}">${p}</div>`).join('');
+
+  function dashAgents(){
+    const team = Array.from({length:14}, (_,i) => 'Agent ' + String(i+1).padStart(2,'0')), sel = 6;
+    const kpis = [['Conversion rate','0.82%','▲ 0.11 pts vs last wk','good',.64],['Avg daily calls','74.3','▲ 4.2% vs last wk','good',.58],['Deposit per call','$412','▼ 6.0% vs last wk','bad',.41],['Deposits from calls','18','within 10-day window','',.7],['FTD this period','5','▲ 2 vs last wk','good',.66]];
+    const days = ['شنبه','یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنج‌شنبه','جمعه'];
+    let heat = '<div></div>' + days.map(d => `<div class="d-hd">${d}</div>`).join('');
+    for (let h = 8; h <= 21; h++){
+      heat += `<div class="d-hr">${String(h).padStart(2,'0')}:00</div>`;
+      for (let d = 0; d < 7; d++){
+        let v = Math.exp(-((h-11)**2)/6) + .9*Math.exp(-((h-16)**2)/5) + sr()*.35;
+        if (d === 6) v = h === 14 ? .25 : 0; if (d === 5 && h > 15) v *= .3; if (h > 18) v *= .35;
+        heat += `<div class="d-cell" style="--v:${Math.min(1, v/1.4).toFixed(2)}"></div>`;
+      }
+    }
+    const funnel = [['Leads assigned',4120,100,'var(--fg)'],['Reached',2610,63,'var(--accent)'],['Answered',1702,41,'var(--accent2)'],['First deposit',5,.6,'var(--accent2)'],['Active clients',64,1.6,'var(--bad)']];
+    return `<div class="dash">
+      <div class="d-nav"><div class="d-t">MY TEAM</div>${team.map((n,i) => `<div class="d-radio${i === sel ? ' on' : ''}">${n}</div>`).join('')}</div>
+      <div class="d-main">
+        <div class="d-head"><b>Sales Team · Agent Summary</b><span>01 Sep – 04 Oct</span></div>
+        <div class="d-row" style="grid-template-columns:repeat(5,1fr)">${kpis.map(([t,v,dl,c,p]) => `<div class="d-card"><div class="d-t">${t}</div><div class="d-v ${c}">${v}</div><div class="d-s ${c}">${dl}</div><div class="d-range"><i style="left:${p*100}%"></i></div></div>`).join('')}</div>
+        <div class="d-card d-agent"><span class="d-av">A7</span><div><b>Agent 07</b><div class="d-t">Sales agent · Rank 4 of 14 · selected period</div></div><span class="d-pill">Needs attention</span></div>
+        <div class="d-row" style="grid-template-columns:1fr 2.3fr">
+          <div class="d-card"><div class="d-t">TEAM RANKING</div><div class="d-ranks"><span>Overall <b>4</b></span><span>Garnett <b>3</b></span><span>VoIP <b>6</b></span><span>Notes <b>2</b></span></div><div class="d-s" style="margin-top:8px">4 strengths · 2 to improve</div></div>
+          <div class="d-card d-sum">
+            <div><span class="d-tag">PERFORMANCE</span>Closed at <b>0.82%</b> conversion, 12% above team average (0.73%). Ranked <b>#4 of 14</b> this period.</div>
+            <div><span class="d-tag t2">ROOT CAUSE</span>Strong call volume (74/day) and long conversations; deposit per call slipped as follow-ups moved to evenings.</div>
+            <div><span class="d-tag t3">RECOMMENDATION</span>Move follow-up calls back to the 11:00–13:00 window and review again in one week.</div>
+          </div>
+        </div>
+        <div class="d-row" style="grid-template-columns:1fr 1.25fr; flex:1; min-height:0">
+          <div class="d-card d-funnel"><div class="d-t">LEAD FUNNEL</div>${funnel.map(([l,n,p,c]) => `<div class="d-fr"><span>${l}</span><div><i style="width:${Math.max(p,1.5)}%;background:${c}"></i><em>${n.toLocaleString('en-US')}</em></div><span>${p < 10 ? p.toFixed(1) : Math.round(p)}%</span></div>`).join('')}
+            <div class="d-mini"><div><span class="d-t">Avg call</span><b>2.6 min</b></div><div><span class="d-t">Notes / day</span><b>68.4</b></div><div><span class="d-t">KYC from calls</span><b>21</b></div></div>
+          </div>
+          <div class="d-card"><div class="d-t">CALL ACTIVITY BY HOUR</div><div class="d-heat">${heat}</div></div>
+        </div>
+      </div></div>`;
+  }
+
+  function dashNorth(){
+    const cards = [['Net deposit','$684','$1.92M'],['Deposit','$9.84K','$5.71M'],['Withdrawal','($9.16K)','$3.79M'],['First deposit amount','$1.08K','$0.94M'],['Broker profit','$7.42K','$4.10M'],['Depositors','48','6.1K'],['New users','37','31.8K'],['First depositors','6','4.2K']];
+    const head = [['78.4%','Annual target achieved','good'],['104.2%','Avg over monthly target','acc'],['60.0%','Months achieved','bad']];
+    return `<div class="dash">
+      <div class="d-nav"><b class="d-logo">North Star<br>Metrics</b>${navPages('Targets & KPIs')}<div class="d-t" style="margin-top:auto">YEAR</div><div class="d-chip">2025</div><div class="d-chip on">2026</div></div>
+      <div class="d-main">
+        <div class="d-row" style="grid-template-columns:repeat(3,1fr)">${head.map(([v,t,c]) => `<div class="d-card d-headline"><div class="d-v ${c}">${v}</div><div class="d-t">${t}</div></div>`).join('')}</div>
+        <div class="d-row" style="grid-template-columns:repeat(4,1fr); grid-template-rows:1fr 1fr; flex:1; min-height:0">${cards.map(([t,last,ytd]) => {
+          const bars = [['M', -(.5 + sr()*.45)], ['Q', -(.1 + sr()*.5)], ['Y', -.2 + sr()*.6]];
+          return `<div class="d-card d-ns"><div class="d-t">Last day ${t.toLowerCase()}</div><div class="d-v">${last}</div>
+            <div class="d-ytd"><span class="d-t">${t} · year to date</span><b>${ytd}</b></div>
+            ${bars.map(([l,p]) => `<div class="d-pb"><span>${l}</span><div><i class="${p >= 0 ? 'g' : 'r'}" style="width:${Math.min(100, Math.abs(p)*100)}%"></i></div><em class="${p >= 0 ? 'good' : 'bad'}">${p >= 0 ? '+' : ''}${Math.round(p*100)}%</em></div>`).join('')}
+            ${spark(series(10, 50, 30), 196, 62)}</div>`; }).join('')}</div>
+      </div></div>`;
+  }
+
+  function dashTraders(){
+    const tiles = [['Active traders','1.21K','▲ 3.2% vs prior week','good'],['Broker profit','$61.8K','Week trading P/L −$48K',''],['Total lots','702.4','',''],['Net deposit','$18.4K','','good']];
+    const syms = [['XAUUSD',1],['BRENT',.34],['NAS100',.22],['EURUSD',.09],['BTCUSD',.05]];
+    const acct = [['ECN',.9],['Pro',.12],['Standard',-.08],['Islamic',-.14],['Cent',-.22]];
+    const rows = [['Client #10482','ECN','MT5','$1,940','+$1,712','+88.3%','—','$1,200'],['Client #20917','Pro','MT4','$2,210','+$1,388','+62.8%','$4,100','$6,250'],['Client #11305','Standard','MT5','$1,470','+$904','+61.5%','—','$900'],['Client #30628','ECN','MT4','$880','+$716','+81.4%','$300','—'],['Client #14771','ECN','MT5','$3,020','+$655','+21.7%','—','—'],['Client #22590','Standard','MT4','$1,115','+$540','+93.9%','$500','$750'],['Client #18034','Pro','MT5','$4,480','+$498','+12.5%','—','—'],['Client #31167','ECN','MT4','$760','+$431','+131.0%','$250','—'],['Client #12809','Cent','MT5','$212','+$187','+748.0%','$20','—']];
+    const trend = series(9, 40, 40);
+    return `<div class="dash">
+      <div class="d-nav"><b class="d-logo">Trader Desk</b>${navPages('Traders')}<div class="d-t" style="margin-top:auto">OWNER</div><div class="d-chip on">All</div><div class="d-chip">Sales team</div><div class="d-chip">Unassigned</div></div>
+      <div class="d-main">
+        <div class="d-row" style="grid-template-columns:repeat(4,1fr)">${tiles.map(([t,v,s,c]) => `<div class="d-card"><div class="d-t">${t}</div><div class="d-v">${v}</div><div class="d-s ${c}">${s || '&nbsp;'}</div></div>`).join('')}</div>
+        <div class="d-row" style="grid-template-columns:1.2fr 1fr 1fr">
+          <div class="d-card"><div class="d-t">BROKER PROFIT TREND</div>${spark(trend, 290, 150, 'var(--accent)')}<div class="d-axis"><span>Jul 28</span><span>Jul 31</span><span>Aug 03</span></div></div>
+          <div class="d-card"><div class="d-t">TOP PROFITABLE SYMBOLS</div>${syms.map(([s,v]) => `<div class="d-hb"><span>${s}</span><div><i style="width:${v*100}%"></i></div></div>`).join('')}</div>
+          <div class="d-card"><div class="d-t">P/L BY ACCOUNT TYPE</div>${acct.map(([s,v]) => `<div class="d-db"><span>${s}</span><div><i class="${v >= 0 ? 'g' : 'r'}" style="${v >= 0 ? 'left:50%' : 'right:50%'};width:${Math.abs(v)*50}%"></i></div></div>`).join('')}</div>
+        </div>
+        <div class="d-card d-table" style="flex:1"><table><thead><tr><th>Client</th><th>Account</th><th>Platform</th><th>Equity end</th><th>Week P/L</th><th>Return</th><th>Fund</th><th>Withdraw</th></tr></thead>
+          <tbody>${rows.map(r => `<tr><td>${r[0]}</td><td class="acc">${r[1]}</td><td><span class="d-plat">${r[2]}</span></td><td>${r[3]}</td><td class="good">${r[4]}</td><td class="good">${r[5]}</td><td>${r[6]}</td><td class="bad">${r[7]}</td></tr>`).join('')}</tbody></table></div>
+      </div></div>`;
+  }
+
+  const DASHES = [
+    {html: dashAgents(), en: 'Agent performance summary: per-agent KPIs, coaching notes and a call heatmap', fa: 'خلاصه‌ی عملکرد کارشناس فروش: KPIهای فردی، یادداشت مربیگری و هیت‌مپ ساعت تماس'},
+    {html: dashNorth(), en: 'North Star metrics: eight executive KPIs against targets and prior years', fa: 'شاخص‌های اصلی مدیریت: هشت KPI در برابر تارگت و سال‌های قبل'},
+    {html: dashTraders(), en: 'Trader analytics: broker P/L, symbols and account types', fa: 'تحلیل معامله‌گران: سود و زیان کارگزار، نمادها و انواع حساب'}
+  ];
+  const fit = el => { const s = el.clientWidth / 1000; el.style.setProperty('--s', s); };
+  const ro = new ResizeObserver(es => es.forEach(e => fit(e.target)));
+  document.querySelectorAll('.dash-slot').forEach(slot => {
+    slot.innerHTML = `<div class="dash-gallery"><div class="dash-note"><span data-l="en">Dashboards I built · rebuilt here with synthetic data</span><span data-l="fa">داشبوردهایی که ساختم · بازسازی‌شده با داده‌ی ساختگی</span></div>
+      <div class="dash-grid">${DASHES.map((d,i) => `<div class="dash-item"><button class="dash-thumb" type="button" data-i="${i}" aria-label="${d.en}">${d.html}</button><p><span data-l="en">${d.en}</span><span data-l="fa">${d.fa}</span></p></div>`).join('')}</div></div>`;
+    slot.querySelectorAll('.dash-thumb').forEach(b => { ro.observe(b); fit(b); b.addEventListener('click', () => lbOpen(+b.dataset.i)); });
+  });
+
+  const lb = document.createElement('div');
+  lb.className = 'lightbox'; lb.hidden = true; lb.setAttribute('role', 'dialog'); lb.setAttribute('aria-modal', 'true');
+  lb.innerHTML = `<button class="btn close" type="button"><span data-l="en">Close</span><span data-l="fa">بستن</span></button><div class="frame"></div><p class="cap"></p>`;
+  document.body.appendChild(lb);
+  const lbFrame = lb.querySelector('.frame'), lbCap = lb.querySelector('.cap'), lbClose = lb.querySelector('.close');
+  let lbFocus = null;
+  function lbSize(){ const s = Math.min(1, (innerWidth - 32)/1000, (innerHeight - 140)/640); lbFrame.style.width = 1000*s + 'px'; lbFrame.style.height = 640*s + 'px'; lbFrame.style.setProperty('--s', s); }
+  function lbOpen(i){
+    lbFocus = document.activeElement;
+    lbFrame.innerHTML = DASHES[i].html; lbCap.textContent = DASHES[i][root.lang === 'fa' ? 'fa' : 'en'];
+    lbSize(); lb.hidden = false; document.body.style.overflow = 'hidden'; lbClose.focus();
+  }
+  function lbShut(){ lb.hidden = true; lbFrame.innerHTML = ''; document.body.style.overflow = ''; if (lbFocus) lbFocus.focus(); }
+  lbClose.addEventListener('click', lbShut);
+  lb.addEventListener('click', e => { if (e.target === lb) lbShut(); });
+  addEventListener('keydown', e => { if (e.key === 'Escape' && !lb.hidden) lbShut(); });
+  addEventListener('resize', () => { if (!lb.hidden) lbSize(); });
 
   /* ---------- name as data points ---------- */
   if (reduce) return;
