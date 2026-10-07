@@ -905,7 +905,9 @@ footer{margin-top:40px; font:12px var(--mono); color:var(--muted)}
 
   /* ---------- background: a wall of refreshing dashboards ---------- */
   const bg = document.getElementById('bg'), bx = bg.getContext('2d');
-  const TYPES = ['kpi','bars','spark','donut','table','area'];
+  const CHARTS = ['bars','spark','donut','table','area'];
+  // every third tile on a diagonal is a KPI, so each column has numbers whichever side the text is on
+  const tileType = (c, rr) => (c + rr) % 3 === 0 ? 'kpi' : CHARTS[(c*3 + rr) % CHARTS.length];
   let tiles = [], BW = 0, BH = 0;
   function makeTile(type){
     const t = {type};
@@ -923,7 +925,7 @@ footer{margin-top:40px; font:12px var(--mono); color:var(--muted)}
     const ox = (BW - (cols*(tw+gap) - gap))/2, oy = (BH - (rows*(th+gap) - gap))/2, old = tiles;
     tiles = [];
     for (let rr = 0; rr < rows; rr++) for (let c = 0; c < cols; c++){
-      const i = rr*cols + c, t = old[i] || makeTile(TYPES[(i*7 + rr) % TYPES.length]);
+      const i = rr*cols + c, t = old[i] || makeTile(tileType(c, rr));
       Object.assign(t, {x: ox + c*(tw+gap), y: oy + rr*(th+gap), w: tw, h: th});
       tiles.push(t);
     }
